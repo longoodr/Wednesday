@@ -16,8 +16,8 @@ def write_text(img):
 pipeline = [scribble, write_text]
 
 if (__name__ == "__main__"):
-    img = Image.open("res/img.jpg")
-    run_processing_pipeline(img, pipeline)
-    img.show()
+    with Image.open("res/img.jpg") as img:
+        run_processing_pipeline(img, pipeline)
+        img.show()
 
 
