@@ -5,7 +5,8 @@ from os import path, walk
 
 from scribble import get_filename
 
-im = Image.open("res/img.jpg")
+SCRIBBLE_WIDTH = 5
+
 
 def run_processing_pipeline(img, pipeline):
     for operation in pipeline:
@@ -14,13 +15,17 @@ def run_processing_pipeline(img, pipeline):
 def get_num_scribbles():
     return len([f for f in listdir("scribbles") if path.isfile(path.join("scribbles", f))])
 
-def scribble_from_file(img, scribble_file):
+def read_scribble_data(scribble_filename):
+    with open(scribble_filename, "r") as scribble_file:
+        return json.load(scribble_file)
+
+def scribble_from_filename(img, scribble_filename):
+    scribble_data = read_scribble_data(scribble_filename)
     pass
 
 def scribble(img):
-    rand_scribble_name = get_filename(random.randrange(get_num_scribbles()))
-    with open(rand_scribble_name, "r") as scribble_file:
-        scribble_from_file(img, scribble_file)
+    rand_scribble_filename = get_filename(random.randrange(get_num_scribbles()))
+    scribble_from_filename(img, scribble_filename)
 
 def write_text(img):
     pass

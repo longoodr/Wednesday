@@ -1,18 +1,19 @@
-import numpy as np
 import time
+import json
 
 from os import mkdir, path
 from pynput import mouse
 
-# Analyze the scribbles from the user between 2 clicks and generates
+from util import get_min_max_tuple, get_scaled_num, get_scaled_pt
+
+# Record the scribbles from the user between 2 clicks and generates
 # a list of (t, (x, y)) coordinates where each coordinate is scaled
 # to lie within [0, 1], where 0 corresponds to the minimum seen raw coord
 # and 1 to the max. Outputs a new data file to scribbles.
 
 recording = False
 input_datapoints = []
-start_time = time.time()
-
+start_time = None
 
 def process_data(input_datapoints):
     output_datapoints = []
@@ -24,46 +25,20 @@ def process_data(input_datapoints):
         output_datapoints.append(get_scaled_pt(pt, max_t, min_x, max_x, min_y, max_y))
     return output_datapoints
 
-def get_scaled_num(num, min_, max_):
-    return (num - min_) / (max_ - min_)
-
-def get_scaled_pt(datapoint, max_t, min_x, max_x, min_y, max_y):
-    gsc = get_scaled_num
-    (t, (x, y)) = datapoint
-    return (gsc(t, 0, max_t), (gsc(x, min_x, max_x), gsc(y, min_y, max_y)))
-
-    for pt in input_datapoints:
-        bounded_pt = get_bounded_pt(pt, max_t, min_x, max_x, min_y, max_y)
-        print(bounded_pt)
-        output_datapoints.append(bounded_pt)
-
-def get_bounded_pt(pt, max_t, min_x, max_x, min_y, max_y):
-    (t, (x, y)) = pt
-    x_diff = max_x - min_x
-    y_diff = max_y - min_y
-
-    bounded_t = t / max_t
-    bounded_x = (x - min_x) / x_diff
-    bounded_y = (y - min_y) / y_diff
-    return (bounded_t, (bounded_x, bounded_y))
-
-
-def get_min_max_tuple(data):
-    lo = np.amin(data)
-    hi = np.amax(data)
-    return lo, hi
-
 # listener
 
 def on_move(x, y):
     global recording
+    global start_time
     if not recording:
         return
+    if start_time is None:
+        start_time = time.time()
     t = time.time() - start_time
     input_datapoints.append((t, (x, y)))
 
 def get_filename(fno):
-    return f"scribbles/scribble{fno}.txy"
+    return f"scribbles/scribble{fno}.json"
 
 def on_click(x, y, button, pressed):
     global recording
@@ -83,8 +58,7 @@ def on_click(x, y, button, pressed):
     while path.isfile(get_filename(fno)):
         fno += 1
     with open(get_filename(fno), "w+") as out_file:
-        for p in processed:
-            out_file.write(str(p))
+        json.dump(processed, out_file, indent=1)
     return False # terminates listener
 
 # main
