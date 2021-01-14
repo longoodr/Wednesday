@@ -1,34 +1,18 @@
+from os import mkdir, path
 from pynput import mouse
+
 import numpy as np
 import time
 
 # Analyze the scribbles from the user between 2 clicks and generates
 # a list of (t, (x, y)) coordinates where each coordinate is scaled
-# to lie within [0, 1].
+# to lie within [0, 1], where 0 corresponds the minimum seen raw coord
+# and 1 to the max.
 
 recording = False
 input_datapoints = []
 start_time = time.time()
 
-def on_click(x, y, button, pressed):
-    global recording
-    if not pressed:
-        return
-    if not recording:
-        recording = True
-        print("Recording. Click to stop")
-        return
-    print("Stopping")
-    recording = False
-    processed = process_data(input_datapoints)
-    with open('mouse_data.txy', 'w+') as out_file:
-        for p in processed:
-            out_file.write(str(p))
-    return False # terminates listener
-
-def on_move(x, y):
-    t = time.time() - start_time
-    input_datapoints.append((t, (x, y)))
 
 def process_data(input_datapoints):
     output_datapoints = []
@@ -68,6 +52,32 @@ def get_min_max_tuple(data):
     lo = np.amin(data)
     hi = np.amax(data)
     return lo, hi
+
+# listener
+
+def on_move(x, y):
+    t = time.time() - start_time
+    input_datapoints.append((t, (x, y)))
+
+def on_click(x, y, button, pressed):
+    global recording
+    if not pressed:
+        return
+    if not recording:
+        recording = True
+        print("Recording. Click to stop")
+        return
+    print("Stopping")
+    recording = False
+    processed = process_data(input_datapoints)
+    if not path.isdir("tmp"):
+        mkdir("tmp")
+    with open('tmp/mouse_data.txy', 'w+') as out_file:
+        for p in processed:
+            out_file.write(str(p))
+    return False # terminates listener
+
+# main
 
 if (__name__ == "__main__"):
     print("Click to begin")

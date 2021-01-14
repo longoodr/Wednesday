@@ -1,4 +1,6 @@
 .vscode
 .venv
+tmp
 
 *.pyc
+*.txy
