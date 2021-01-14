@@ -7,7 +7,7 @@ import time
 # Analyze the scribbles from the user between 2 clicks and generates
 # a list of (t, (x, y)) coordinates where each coordinate is scaled
 # to lie within [0, 1], where 0 corresponds the minimum seen raw coord
-# and 1 to the max.
+# and 1 to the max. Outputs a new data file to tmp.
 
 recording = False
 input_datapoints = []
@@ -56,8 +56,14 @@ def get_min_max_tuple(data):
 # listener
 
 def on_move(x, y):
+    global recording
+    if not recording:
+        return
     t = time.time() - start_time
     input_datapoints.append((t, (x, y)))
+
+def get_filename(fno):
+    return f"tmp/scribble{fno}.txy"
 
 def on_click(x, y, button, pressed):
     global recording
@@ -72,7 +78,11 @@ def on_click(x, y, button, pressed):
     processed = process_data(input_datapoints)
     if not path.isdir("tmp"):
         mkdir("tmp")
-    with open('tmp/mouse_data.txy', 'w+') as out_file:
+    
+    fno = 0
+    while path.isfile(get_filename(fno)):
+        fno += 1
+    with open(get_filename(fno), 'w+') as out_file:
         for p in processed:
             out_file.write(str(p))
     return False # terminates listener
