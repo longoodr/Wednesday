@@ -82,7 +82,7 @@ def on_click(x, y, button, pressed):
     fno = 0
     while path.isfile(get_filename(fno)):
         fno += 1
-    with open(get_filename(fno), 'w+') as out_file:
+    with open(get_filename(fno), "w+") as out_file:
         for p in processed:
             out_file.write(str(p))
     return False # terminates listener
