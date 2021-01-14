@@ -1,0 +1,2 @@
+# min_x, max_x, min_y, max_y, assuming coords grow from top left to bottom right
+0.1375 0.8583 0.8388 1.0

@@ -7,7 +7,7 @@ from pynput import mouse
 # Analyze the scribbles from the user between 2 clicks and generates
 # a list of (t, (x, y)) coordinates where each coordinate is scaled
 # to lie within [0, 1], where 0 corresponds to the minimum seen raw coord
-# and 1 to the max. Outputs a new data file to tmp.
+# and 1 to the max. Outputs a new data file to scribbles.
 
 recording = False
 input_datapoints = []
@@ -63,7 +63,7 @@ def on_move(x, y):
     input_datapoints.append((t, (x, y)))
 
 def get_filename(fno):
-    return f"tmp/scribble{fno}.txy"
+    return f"scribbles/scribble{fno}.txy"
 
 def on_click(x, y, button, pressed):
     global recording
@@ -76,8 +76,8 @@ def on_click(x, y, button, pressed):
     print("Stopping")
     recording = False
     processed = process_data(input_datapoints)
-    if not path.isdir("tmp"):
-        mkdir("tmp")
+    if not path.isdir("scribbles"):
+        mkdir("scribbles")
     
     fno = 0
     while path.isfile(get_filename(fno)):

@@ -12,10 +12,15 @@ def run_processing_pipeline(img, pipeline):
         operation(img)
 
 def get_num_scribbles():
-    return len([f for f in listdir("tmp") if path.isfile(path.join("tmp", f))])
+    return len([f for f in listdir("scribbles") if path.isfile(path.join("scribbles", f))])
+
+def scribble_from_file(img, scribble_file):
+    pass
 
 def scribble(img):
-    fno = random.randrange(get_num_scribbles())
+    rand_scribble_name = get_filename(random.randrange(get_num_scribbles()))
+    with open(rand_scribble_name, "r") as scribble_file:
+        scribble_from_file(img, scribble_file)
 
 def write_text(img):
     pass
