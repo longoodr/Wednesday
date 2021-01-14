@@ -24,7 +24,7 @@ def read_scribble_data(scribble_filename):
         return json.load(scribble_file)
 
 def read_scribble_dims():
-    with open("res/img_scribble_dimensions.txt", "r") as dimfile:
+    with open(path.abspath(path.join("..", "res", "img_scribble_dimensions.txt")), "r") as dimfile:
         lines = [line for line in dimfile.readlines() if not line.startswith("#")]
         dimline = lines[0]
         dimlist = []
