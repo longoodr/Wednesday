@@ -1,8 +1,8 @@
-from os import mkdir, path
-from pynput import mouse
-
 import numpy as np
 import time
+
+from os import mkdir, path
+from pynput import mouse
 
 # Analyze the scribbles from the user between 2 clicks and generates
 # a list of (t, (x, y)) coordinates where each coordinate is scaled
