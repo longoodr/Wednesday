@@ -2,7 +2,9 @@ from pynput import mouse
 import numpy as np
 import time
 
-# Analyze the scribbles from the user between 2 clicks. 
+# Analyze the scribbles from the user between 2 clicks and generates
+# a list of (t, (x, y)) coordinates where each coordinate is scaled
+# to lie within [0, 1].
 
 recording = False
 input_datapoints = []
@@ -18,13 +20,15 @@ def on_click(x, y, button, pressed):
         return
     print("Stopping")
     recording = False
-    process_data(input_datapoints)
+    processed = process_data(input_datapoints)
+    with open('mouse_data.txy', 'w+') as out_file:
+        for p in processed:
+            out_file.write(str(p))
     return False # terminates listener
 
 def on_move(x, y):
-    input_datapoints.append(
-        (time.time() - start_time, 
-        (x, y)))
+    t = time.time() - start_time
+    input_datapoints.append((t, (x, y)))
 
 def process_data(input_datapoints):
     output_datapoints = []
@@ -32,6 +36,17 @@ def process_data(input_datapoints):
     max_t = input_datapoints[-1][0]
     min_x, max_x = get_min_max_tuple([x for (x, _) in coords])
     min_y, max_y = get_min_max_tuple([y for (_, y) in coords])
+    for pt in input_datapoints:
+        output_datapoints.append(get_scaled_pt(pt, max_t, min_x, max_x, min_y, max_y))
+    return output_datapoints
+
+def get_scaled_num(num, min_, max_):
+    return (num - min_) / (max_ - min_)
+
+def get_scaled_pt(datapoint, max_t, min_x, max_x, min_y, max_y):
+    gsc = get_scaled_num
+    (t, (x, y)) = datapoint
+    return (gsc(t, 0, max_t), ( gsc(x, min_x, max_x), gsc(y, min_y, max_y)))
 
     for pt in input_datapoints:
         bounded_pt = get_bounded_pt(pt, max_t, min_x, max_x, min_y, max_y)
