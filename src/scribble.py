@@ -6,7 +6,7 @@ import time
 
 # Analyze the scribbles from the user between 2 clicks and generates
 # a list of (t, (x, y)) coordinates where each coordinate is scaled
-# to lie within [0, 1], where 0 corresponds the minimum seen raw coord
+# to lie within [0, 1], where 0 corresponds to the minimum seen raw coord
 # and 1 to the max. Outputs a new data file to tmp.
 
 recording = False
