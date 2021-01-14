@@ -16,8 +16,8 @@ start_time = time.time()
 
 def process_data(input_datapoints):
     output_datapoints = []
-    coords = [(x, y) for (_, (x, y)) in input_datapoints]
     max_t = input_datapoints[-1][0]
+    coords = [(x, y) for (_, (x, y)) in input_datapoints]
     min_x, max_x = get_min_max_tuple([x for (x, _) in coords])
     min_y, max_y = get_min_max_tuple([y for (_, y) in coords])
     for pt in input_datapoints:
@@ -30,7 +30,7 @@ def get_scaled_num(num, min_, max_):
 def get_scaled_pt(datapoint, max_t, min_x, max_x, min_y, max_y):
     gsc = get_scaled_num
     (t, (x, y)) = datapoint
-    return (gsc(t, 0, max_t), ( gsc(x, min_x, max_x), gsc(y, min_y, max_y)))
+    return (gsc(t, 0, max_t), (gsc(x, min_x, max_x), gsc(y, min_y, max_y)))
 
     for pt in input_datapoints:
         bounded_pt = get_bounded_pt(pt, max_t, min_x, max_x, min_y, max_y)
