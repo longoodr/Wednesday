@@ -49,7 +49,6 @@ def draw_scribble_on_img(img, pts):
 def scribble_from_filename(img, scribble_filename):
     scribble_data = read_scribble_data(scribble_filename)
     scaled_scribble = scale_scribble_to_img(scribble_data, img)
-    print(scaled_scribble[0])
 
 def scribble(img):
     rand_scribble_filename = get_scribble_filename(random.randrange(get_num_scribbles()))
