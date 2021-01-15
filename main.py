@@ -1,19 +1,22 @@
 import json
 import random
 
-from PIL import Image, ImageDraw
+from datetime import datetime
+from PIL import Image, ImageDraw, ImageFont
 from os import listdir, path, walk
 from random import random as rand
 
+import sys
 import util
 
 from scribble import DIR as SCRIBBLE_DIR, get_filename as get_scribble_filename
 
-SCRIBBLE_WIDTH = 5
+SCRIBBLE_WIDTH = 8
+SCRIBBLE_WIDTH_WOBBLE = 0.5
+FONT_SIZE_WOBBLE = 0.05
+DAY_WOBBLE = 0.05
 
-def run_processing_pipeline(img, pipeline):
-    for operation in pipeline:
-        operation(img)
+PIXELS_TO_FONT = 15/11.25
 
 def get_num_scribbles():
     num_scribbles = len([f for f in listdir(SCRIBBLE_DIR) if path.isfile(path.join(SCRIBBLE_DIR, f))])
@@ -57,7 +60,8 @@ def get_line_fill():
 def draw_scribble_on_img(img, pts):
     cur_pt = pts[0]
     draw = ImageDraw.Draw(img)
-    draw.line(pts, fill=get_line_fill(), width=SCRIBBLE_WIDTH, joint="curve")
+    width = int(SCRIBBLE_WIDTH * random.uniform(1-SCRIBBLE_WIDTH_WOBBLE, 1+SCRIBBLE_WIDTH_WOBBLE))
+    draw.line(pts, fill=get_line_fill(), width=width, joint="curve")
 
 def scribble_from_filename(img, scribble_filename):
     scribble_data = read_scribble_data(scribble_filename)
@@ -68,12 +72,27 @@ def scribble(img):
     rand_scribble_filename = get_scribble_filename(random.randrange(get_num_scribbles()))
     scribble_from_filename(img, rand_scribble_filename)
 
-def write_text(img):
-    pass
+def write_text(img, offset):
+    weekday_num = (datetime.today().weekday() + offset) % 7
+    weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][weekday_num]
+    draw = ImageDraw.Draw(img)
+    draw_outlined_impact(draw, weekday)
 
-pipeline = [scribble, write_text]
+def draw_outlined_impact(draw, text):
+    (min_x, max_x, min_y, max_y) = read_scribble_bound_dims()
+    font_height_pixels = (max_y - min_y) * img.size[1] * PIXELS_TO_FONT
+    font = ImageFont.truetype(path.join("res", "impact.ttf"), int(random.uniform(1-2*FONT_SIZE_WOBBLE, 1) * font_height_pixels))
+    text_anchor = util.norm_to_pixel_space(
+            (random.uniform(-1*DAY_WOBBLE, DAY_WOBBLE) + (min_x + max_x) / 2, 
+            random.uniform(-1*DAY_WOBBLE, DAY_WOBBLE) + (min_y + max_y) / 2), 
+        img.size)
+    draw.text(text_anchor, text, (255, 255, 255), font = font, anchor="mm", stroke_width=2, stroke_fill=(0, 0, 0))
 
 if (__name__ == "__main__"):
     with Image.open(path.join("res", "img.jpg")) as img:
-        run_processing_pipeline(img, pipeline)
+        for i in range(9):
+            for _ in range(2):
+                scribble(img)
+            write_text(img, i)
         img.show()
+        img.save("out.png")
