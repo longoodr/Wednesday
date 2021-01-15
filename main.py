@@ -3,6 +3,7 @@ import random
 
 from PIL import Image, ImageDraw
 from os import listdir, path, walk
+from random import random as rand
 
 import util
 
@@ -20,9 +21,15 @@ def get_num_scribbles():
         raise FileNotFoundError
     return num_scribbles
 
+def get_randomly_flipped_scribble(scribble_data):
+    flipped_scribble = [(x, y) for (_, (x, y)) in scribble_data]
+    for flip_func in [f for f in [util.flip_pt_horizontally, util.flip_pt_vertically] if rand() < 0.5]:
+        flipped_scribble = map(flip_func, flipped_scribble)
+    return list(flipped_scribble)
+
 def read_scribble_data(scribble_filename):
     with open(path.join(SCRIBBLE_DIR, scribble_filename), "r") as scribble_file:
-        return json.load(scribble_file)
+        return get_randomly_flipped_scribble(json.load(scribble_file))
 
 def read_scribble_bound_dims():
     with open(path.join("res", "img_scribble_dimensions.txt"), "r") as dimfile:
@@ -36,15 +43,19 @@ def read_scribble_bound_dims():
 def scale_scribble_to_img(scribble_data, img):
     scribble_dims = read_scribble_bound_dims()
     scaled_scribble = []
-    for _, pt in scribble_data:
+    for pt in scribble_data:
         upscaled_pt = util.get_upscaled_pt(pt, *scribble_dims)
         scaled_scribble.append(util.norm_to_pixel_space(upscaled_pt, img.size))
     return scaled_scribble
 
+def get_line_fill():
+    r = random.randrange(0, 256)
+    return (r, r, r)
+
 def draw_scribble_on_img(img, pts):
     cur_pt = pts[0]
     draw = ImageDraw.Draw(img)
-    draw.line(pts, fill=255, width=SCRIBBLE_WIDTH, joint="curve")
+    draw.line(pts, fill=get_line_fill(), width=SCRIBBLE_WIDTH, joint="curve")
 
 def scribble_from_filename(img, scribble_filename):
     scribble_data = read_scribble_data(scribble_filename)
