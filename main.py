@@ -1,3 +1,4 @@
+import json
 import random
 
 from PIL import Image, ImageDraw
@@ -20,35 +21,38 @@ def get_num_scribbles():
     return num_scribbles
 
 def read_scribble_data(scribble_filename):
-    with open(scribble_filename, "r") as scribble_file:
+    with open(path.join(SCRIBBLE_DIR, scribble_filename), "r") as scribble_file:
         return json.load(scribble_file)
 
-def read_scribble_dims():
-    with open(path.abspath(path.join("..", "res", "img_scribble_dimensions.txt")), "r") as dimfile:
+def read_scribble_bound_dims():
+    with open(path.join("res", "img_scribble_dimensions.txt"), "r") as dimfile:
         lines = [line for line in dimfile.readlines() if not line.startswith("#")]
         dimline = lines[0]
         dimlist = []
         for dim in dimline.split():
-            dimlist.append(int(dim))
+            dimlist.append(float(dim))
         return tuple(dimlist)
 
 def scale_scribble_to_img(scribble_data, img):
-    scribble_dims = read_scribble_dims()
-    return [util.norm_to_pixel_space(util.get_scaled_pt(pt, 1.0, *scribble_dims)) 
-        for pt in scribble_data]
-
-def scribble_from_filename(img, scribble_filename):
-    scribble_data = read_scribble_data(scribble_filename)
-    scaled_scribble = scale_scribble_to_img(scribble_data)
+    scribble_dims = read_scribble_bound_dims()
+    scaled_scribble = []
+    for pt in scribble_data:
+        _, scaled_pt = util.get_scaled_pt(pt, 1.0, *scribble_dims)
+        scaled_scribble.append(util.norm_to_pixel_space(scaled_pt, img.size))
 
 def draw_scribble_on_img(img, pts):
     cur_pt = pts[0]
     draw = ImageDraw.Draw(img)
     draw.line(pts, fill=255, width=SCRIBBLE_WIDTH, joint="curve")
 
+def scribble_from_filename(img, scribble_filename):
+    scribble_data = read_scribble_data(scribble_filename)
+    scaled_scribble = scale_scribble_to_img(scribble_data, img)
+    print(scaled_scribble[0])
+
 def scribble(img):
     rand_scribble_filename = get_scribble_filename(random.randrange(get_num_scribbles()))
-    scribble_from_filename(img, scribble_filename)
+    scribble_from_filename(img, rand_scribble_filename)
 
 def write_text(img):
     pass
@@ -56,8 +60,8 @@ def write_text(img):
 pipeline = [scribble, write_text]
 
 if (__name__ == "__main__"):
-    with Image.open(path.abspath(path.join("..", "res", "img.jpg"))) as img:
+    pt = (0.5, (0.25, 0.8))
+    print(util.get_scaled_pt(pt, 1.0, 0, 480, 0, 320))
+    with Image.open(path.join("res", "img.jpg")) as img:
         run_processing_pipeline(img, pipeline)
         img.show()
-
-

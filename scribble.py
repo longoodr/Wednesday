@@ -11,7 +11,7 @@ import util
 # to lie within [0, 1], where 0 corresponds to the minimum seen raw coord
 # and 1 to the max. Outputs a new data file to scribbles.
 
-DIR = path.join("..", "scribbles")
+DIR = "scribbles"
 
 recording = False
 input_datapoints = []
@@ -40,7 +40,10 @@ def on_move(x, y):
     input_datapoints.append((t, (x, y)))
 
 def get_filename(fno):
-    return path.abspath(path.join(DIR, f"scribble{fno}.json"))
+    return f"scribble{fno}.json"
+
+def full_path(fno_or_fname):
+    return os.path.abspath(path.join("res", (get_filename(fno_or_fname) if isinstance(fno_or_fname, int) else fno_or_fname)))
 
 def on_click(x, y, button, pressed):
     global recording
@@ -53,13 +56,11 @@ def on_click(x, y, button, pressed):
     print("Stopping")
     recording = False
     processed = normalize_data(input_datapoints)
-    if not path.isdir(DIR):
-        mkdir(DIR)
     
     fno = 0
-    while path.isfile(get_filename(fno)):
+    while path.isfile(path.join(DIR, get_filename(fno))):
         fno += 1
-    with open(get_filename(fno), "w+") as out_file:
+    with open(path.join(DIR, get_filename(fno)), "w+") as out_file:
         print(get_filename(fno))
         json.dump(processed, out_file, indent=1)
     return False # terminates listener
