@@ -49,7 +49,9 @@ def scale_scribble_to_img(scribble_data, img):
     return scaled_scribble
 
 def get_line_fill():
-    r = random.randrange(0, 256)
+    r = random.randrange(0, 64)
+    if rand() < 0.5:
+        r = 255 - r
     return (r, r, r)
 
 def draw_scribble_on_img(img, pts):
