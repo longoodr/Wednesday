@@ -86,7 +86,7 @@ def draw_outlined_impact(draw, text):
             (random.uniform(-1*DAY_WOBBLE, DAY_WOBBLE) + (min_x + max_x) / 2, 
             random.uniform(-1*DAY_WOBBLE, DAY_WOBBLE) + (min_y + max_y) / 2), 
         img.size)
-    draw.text(text_anchor, text, (255, 255, 255), font = font, anchor="mm", stroke_width=2, stroke_fill=(0, 0, 0))
+    draw.text(text_anchor, text, (255, 255, 255), font=font, anchor="mm", stroke_width=2, stroke_fill=(0, 0, 0))
 
 if (__name__ == "__main__"):
     with Image.open(path.join("res", "img.jpg")) as img:
