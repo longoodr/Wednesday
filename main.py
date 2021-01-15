@@ -36,9 +36,10 @@ def read_scribble_bound_dims():
 def scale_scribble_to_img(scribble_data, img):
     scribble_dims = read_scribble_bound_dims()
     scaled_scribble = []
-    for pt in scribble_data:
-        _, scaled_pt = util.get_scaled_pt(pt, 1.0, *scribble_dims)
-        scaled_scribble.append(util.norm_to_pixel_space(scaled_pt, img.size))
+    for _, pt in scribble_data:
+        upscaled_pt = util.get_upscaled_pt(pt, *scribble_dims)
+        scaled_scribble.append(util.norm_to_pixel_space(upscaled_pt, img.size))
+    return scaled_scribble
 
 def draw_scribble_on_img(img, pts):
     cur_pt = pts[0]
@@ -60,8 +61,6 @@ def write_text(img):
 pipeline = [scribble, write_text]
 
 if (__name__ == "__main__"):
-    pt = (0.5, (0.25, 0.8))
-    print(util.get_scaled_pt(pt, 1.0, 0, 480, 0, 320))
     with Image.open(path.join("res", "img.jpg")) as img:
         run_processing_pipeline(img, pipeline)
         img.show()

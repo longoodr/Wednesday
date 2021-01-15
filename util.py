@@ -20,4 +20,4 @@ def get_upscaled_pt(xy_pt, x0, x1, y0, y1):
 
 def norm_to_pixel_space(xy_pt, size):
     (w, h) = size
-    return (pt[0] * w, pt[1] * h)
+    return (xy_pt[0] * w, xy_pt[1] * h)
