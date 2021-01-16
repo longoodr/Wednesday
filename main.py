@@ -77,7 +77,7 @@ def draw_outlined_impact(draw, text):
             (random.uniform(-1*DAY_WOBBLE, DAY_WOBBLE) + (min_x + max_x) / 2, 
             random.uniform(-1*DAY_WOBBLE, 0) + (min_y + max_y) / 2), 
         img.size)
-    draw.text(text_anchor, text, (255, 255, 255), font=font, anchor="mm", stroke_width=2, stroke_fill=(0, 0, 0))
+    draw.text(text_anchor, text, (230, 230, 230), font=font, anchor="mm", stroke_width=2, stroke_fill=(0, 0, 0))
 
 
 def get_scribbled(img):
@@ -136,10 +136,13 @@ if (__name__ == "__main__"):
 
     args = parser.parse_args()
 
-    with Image.open(args.image) as img:
-        for i in range(args.iterations):
-            img = get_scribbled(img)
-            img = get_text_written(img, args.weekday + i)
-            img = get_jpegified(img, quality=30)
-        img.show()
-        img.save("out.png")
+    try:
+        with Image.open(args.image) as img:
+            for i in range(args.iterations):
+                img = get_scribbled(img)
+                img = get_text_written(img, args.weekday + i)
+                img = get_jpegified(img, quality=30)
+            img.show()
+            img.save("out.png")
+    except Exception as ex:
+        print(f"Program failed to run: {ex}")
