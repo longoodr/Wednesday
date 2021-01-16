@@ -38,10 +38,7 @@ def read_scribble_bound_dims():
     with open(path.join("res", "img_scribble_dimensions.txt"), "r") as dimfile:
         lines = [line for line in dimfile.readlines() if not line.startswith("#")]
         dimline = lines[0]
-        dimlist = []
-        for dim in dimline.split():
-            dimlist.append(float(dim))
-        return tuple(dimlist)
+        return tuple([float(dim) for dim in dimline.split()])
 
 def scale_scribble_to_img(scribble_data, img):
     scribble_dims = read_scribble_bound_dims()
@@ -58,7 +55,6 @@ def get_line_fill():
     return (r, r, r)
 
 def draw_scribble_on_img(img, pts):
-    cur_pt = pts[0]
     draw = ImageDraw.Draw(img)
     width = int(SCRIBBLE_WIDTH * random.uniform(1-SCRIBBLE_WIDTH_WOBBLE, 1+SCRIBBLE_WIDTH_WOBBLE))
     draw.line(pts, fill=get_line_fill(), width=width, joint="curve")
@@ -84,14 +80,14 @@ def draw_outlined_impact(draw, text):
     font = ImageFont.truetype(path.join("res", "impact.ttf"), int(random.uniform(1-2*FONT_SIZE_WOBBLE, 1) * font_height_pixels))
     text_anchor = util.norm_to_pixel_space(
             (random.uniform(-1*DAY_WOBBLE, DAY_WOBBLE) + (min_x + max_x) / 2, 
-            random.uniform(-1*DAY_WOBBLE, DAY_WOBBLE) + (min_y + max_y) / 2), 
+            random.uniform(-1*DAY_WOBBLE, 0) + (min_y + max_y) / 2), 
         img.size)
     draw.text(text_anchor, text, (255, 255, 255), font=font, anchor="mm", stroke_width=2, stroke_fill=(0, 0, 0))
 
 if (__name__ == "__main__"):
     with Image.open(path.join("res", "img.jpg")) as img:
-        for i in range(9):
-            for _ in range(2):
+        for i in range(12):
+            for _ in range(20):
                 scribble(img)
             write_text(img, i)
         img.show()
