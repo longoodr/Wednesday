@@ -3,9 +3,10 @@ import json
 import random
 
 from datetime import datetime
-from PIL import Image, ImageDraw, ImageFont
+from io import BytesIO
 from os import listdir, path, walk
 from random import random as rand
+from PIL import Image, ImageDraw, ImageFont
 
 import sys
 import util
@@ -23,7 +24,7 @@ DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturda
 def get_num_scribbles():
     num_scribbles = len([f for f in listdir(SCRIBBLE_DIR) if path.isfile(path.join(SCRIBBLE_DIR, f))])
     if num_scribbles == 0:
-        raise FileNotFoundError
+        raise FileNotFoundError("Looked in local scribbles folder but did not find any scribble data.")
     return num_scribbles
 
 def get_randomly_flipped_scribble(scribble_data):
@@ -66,19 +67,6 @@ def scribble_from_filename(img, scribble_filename):
     scaled_scribble = scale_scribble_to_img(scribble_data, img)
     draw_scribble_on_img(img, scaled_scribble)
 
-def get_scribbled(img):
-    rand_scribble_filename = get_scribble_filename(random.randrange(get_num_scribbles()))
-    new_img = img.copy()
-    scribble_from_filename(new_img, rand_scribble_filename)
-    return new_img
-
-def get_text_written(img, weekday_num):
-    weekday = DAYS_OF_WEEK[weekday_num]
-    new_img = img.copy()
-    draw = ImageDraw.Draw(new_img)
-    draw_outlined_impact(draw, weekday)
-    return new_img
-
 def draw_outlined_impact(draw, text):
     (min_x, max_x, min_y, max_y) = read_scribble_bound_dims()
     font_height_pixels = (max_y - min_y) * img.size[1] * PIXELS_TO_FONT
@@ -88,6 +76,27 @@ def draw_outlined_impact(draw, text):
             random.uniform(-1*DAY_WOBBLE, 0) + (min_y + max_y) / 2), 
         img.size)
     draw.text(text_anchor, text, (255, 255, 255), font=font, anchor="mm", stroke_width=2, stroke_fill=(0, 0, 0))
+
+
+def get_scribbled(img):
+    rand_scribble_filename = get_scribble_filename(random.randrange(get_num_scribbles()))
+    new_img = img.copy()
+    scribble_from_filename(new_img, rand_scribble_filename)
+    return new_img
+
+def get_text_written(img, weekday_num):
+    weekday = DAYS_OF_WEEK[weekday_num % len(DAYS_OF_WEEK)]
+    new_img = img.copy()
+    draw = ImageDraw.Draw(new_img)
+    draw_outlined_impact(draw, weekday)
+    return new_img
+
+def get_jpegified(img, quality=50):
+    buffer = BytesIO()
+    img.save(buffer, "JPEG", quality=quality)
+    buffer.seek(0)
+    return Image.open(buffer)
+
 
 def parse_iterations(num):
     num = int(num)
@@ -100,6 +109,7 @@ def parse_weekday(num):
     if num <= 0 or num > 6:
         raise argparse.ArgumentTypeError("Enter a weekday number between 0 (Monday) and 6 (Sunday).")
     return num
+
 
 if (__name__ == "__main__"):
     parser = argparse.ArgumentParser(description="Writes days of the week over the \"It's Wednesday, or as I like to call it: Thursday\" meme.")
@@ -128,5 +138,6 @@ if (__name__ == "__main__"):
         for i in range(args.iterations):
             img = get_scribbled(img)
             img = get_text_written(img, args.weekday + i)
+            img = get_jpegified(img, quality=30)
         img.show()
         img.save("out.png")
