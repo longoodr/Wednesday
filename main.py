@@ -1,3 +1,4 @@
+import argparse
 import json
 import random
 
@@ -17,6 +18,7 @@ FONT_SIZE_WOBBLE = 0.05
 DAY_WOBBLE = 0.05
 
 PIXELS_TO_FONT = 15/11.25
+DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 def get_num_scribbles():
     num_scribbles = len([f for f in listdir(SCRIBBLE_DIR) if path.isfile(path.join(SCRIBBLE_DIR, f))])
@@ -70,7 +72,7 @@ def scribble(img):
 
 def write_text(img, offset):
     weekday_num = (datetime.today().weekday() + offset) % 7
-    weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][weekday_num]
+    weekday = DAYS_OF_WEEK[weekday_num]
     draw = ImageDraw.Draw(img)
     draw_outlined_impact(draw, weekday)
 
@@ -85,6 +87,27 @@ def draw_outlined_impact(draw, text):
     draw.text(text_anchor, text, (255, 255, 255), font=font, anchor="mm", stroke_width=2, stroke_fill=(0, 0, 0))
 
 if (__name__ == "__main__"):
+    parser = argparse.ArgumentParser(description="Writes days of the week over the \"It's Wednesday, or as I like to call it: Thursday\" meme.")
+
+    parser.add_argument("image",
+        type=str,
+        default="img.jpg",
+        required=False,
+        help="Name of the image file to process.")
+
+    parser.add_argument("iterations",
+        type=int,
+        default=1,
+        required=False,
+        help="Number of iterations to perform.")
+
+    parser.add_argument(
+        "day_of_week",
+        type=int,
+        default=datetime.today().weekday(),
+        required=False,
+        help="Number corresponding to day of week to write on image, where Monday is 0 and Sunday is 6.")
+
     with Image.open(path.join("res", "img.jpg")) as img:
         for i in range(12):
             for _ in range(20):
