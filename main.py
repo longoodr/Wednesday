@@ -66,15 +66,18 @@ def scribble_from_filename(img, scribble_filename):
     scaled_scribble = scale_scribble_to_img(scribble_data, img)
     draw_scribble_on_img(img, scaled_scribble)
 
-def scribble(img):
+def get_scribbled(img):
     rand_scribble_filename = get_scribble_filename(random.randrange(get_num_scribbles()))
-    scribble_from_filename(img, rand_scribble_filename)
+    new_img = img.copy()
+    scribble_from_filename(new_img, rand_scribble_filename)
+    return new_img
 
-def write_text(img, offset):
-    weekday_num = (datetime.today().weekday() + offset) % 7
+def get_text_written(img, weekday_num):
     weekday = DAYS_OF_WEEK[weekday_num]
-    draw = ImageDraw.Draw(img)
+    new_img = img.copy()
+    draw = ImageDraw.Draw(new_img)
     draw_outlined_impact(draw, weekday)
+    return new_img
 
 def draw_outlined_impact(draw, text):
     (min_x, max_x, min_y, max_y) = read_scribble_bound_dims()
@@ -86,32 +89,44 @@ def draw_outlined_impact(draw, text):
         img.size)
     draw.text(text_anchor, text, (255, 255, 255), font=font, anchor="mm", stroke_width=2, stroke_fill=(0, 0, 0))
 
+def parse_iterations(num):
+    num = int(num)
+    if num < 0:
+        raise argparse.ArgumentTypeError("Iterations cannot be negative.")
+    return num
+
+def parse_weekday(num):
+    num = int(num)
+    if num <= 0 or num > 6:
+        raise argparse.ArgumentTypeError("Enter a weekday number between 0 (Monday) and 6 (Sunday).")
+    return num
+
 if (__name__ == "__main__"):
     parser = argparse.ArgumentParser(description="Writes days of the week over the \"It's Wednesday, or as I like to call it: Thursday\" meme.")
 
-    parser.add_argument("image",
+    parser.add_argument("-i", "--image",
         type=str,
-        default="img.jpg",
+        default=path.join("res", "img.jpg"),
         required=False,
-        help="Name of the image file to process.")
+        help="name of the image file to process")
 
-    parser.add_argument("iterations",
+    parser.add_argument("-n", "--iterations",
         type=int,
         default=1,
         required=False,
-        help="Number of iterations to perform.")
+        help="number of iterations to perform")
 
-    parser.add_argument(
-        "day_of_week",
-        type=int,
+    parser.add_argument("-w", "--weekday",
+        type=parse_weekday,
         default=datetime.today().weekday(),
         required=False,
-        help="Number corresponding to day of week to write on image, where Monday is 0 and Sunday is 6.")
+        help="number of the corresponding weekday to write on image, where Monday is 0 and Sunday is 6; defaults to today")
 
-    with Image.open(path.join("res", "img.jpg")) as img:
-        for i in range(12):
-            for _ in range(20):
-                scribble(img)
-            write_text(img, i)
+    args = parser.parse_args()
+
+    with Image.open(args.image) as img:
+        for i in range(args.iterations):
+            img = get_scribbled(img)
+            img = get_text_written(img, args.weekday + i)
         img.show()
         img.save("out.png")
