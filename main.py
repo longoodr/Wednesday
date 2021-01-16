@@ -22,9 +22,11 @@ PIXELS_TO_FONT = 15/11.25
 DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 def get_num_scribbles():
+    if not path.isdir(SCRIBBLE_DIR):
+        raise FileNotFoundError("No local scribbles folder found. Run scribble.py to generate some scribbles to use.")
     num_scribbles = len([f for f in listdir(SCRIBBLE_DIR) if path.isfile(path.join(SCRIBBLE_DIR, f))])
     if num_scribbles == 0:
-        raise FileNotFoundError("Looked in local scribbles folder but did not find any scribble data.")
+        raise FileNotFoundError("Looked in local scribbles folder but did not find any scribble data. Run scribble.py to generate some scribbles to use.")
     return num_scribbles
 
 def get_randomly_flipped_scribble(scribble_data):
