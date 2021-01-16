@@ -120,7 +120,7 @@ if (__name__ == "__main__"):
         type=parse_weekday,
         default=datetime.today().weekday(),
         required=False,
-        help="number of the corresponding weekday to write on image, where Monday is 0 and Sunday is 6; defaults to today")
+        help="number of the corresponding weekday to write on image, where Monday is 0 and Sunday is 6, defaults to today")
 
     args = parser.parse_args()
 
