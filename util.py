@@ -26,4 +26,4 @@ def flip_pt_vertically(xy_pt):
     return (xy_pt[0], 1 - xy_pt[1])
 
 def flip_pt_horizontally(xy_pt):
-    return (1 - xy_pt[0], 1 - xy_pt[1])
+    return (1 - xy_pt[0], xy_pt[1])
