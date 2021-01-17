@@ -13,9 +13,9 @@ import util
 
 from scribble import DIR as SCRIBBLE_DIR, get_filename as get_scribble_filename
 
-SCRIBBLE_WIDTH = 8
+SCRIBBLE_WIDTH = 10
 SCRIBBLE_WIDTH_WOBBLE = 0.5
-FONT_SIZE_WOBBLE = 0.05
+FONT_SIZE_WOBBLE = 0.1
 DAY_WOBBLE = 0.05
 
 PIXELS_TO_FONT = 15/11.25
@@ -71,7 +71,7 @@ def scribble_from_filename(img, scribble_filename):
 
 def draw_outlined_impact(draw, text):
     (min_x, max_x, min_y, max_y) = read_scribble_bound_dims()
-    font_height_pixels = (max_y - min_y) * img.size[1] * PIXELS_TO_FONT
+    font_height_pixels = (max_y - min_y) * img.size[1] * PIXELS_TO_FONT * 0.6
     font = ImageFont.truetype(path.join("res", "impact.ttf"), int(random.uniform(1-2*FONT_SIZE_WOBBLE, 1) * font_height_pixels))
     text_anchor = util.norm_to_pixel_space(
             (random.uniform(-1*DAY_WOBBLE, DAY_WOBBLE) + (min_x + max_x) / 2, 
