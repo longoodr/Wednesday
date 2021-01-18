@@ -108,7 +108,7 @@ def parse_iterations(num):
 
 def parse_weekday(num):
     num = int(num)
-    if num <= 0 or num > 6:
+    if num < 0 or num > 6:
         raise argparse.ArgumentTypeError("Enter a weekday number between 0 (Monday) and 6 (Sunday).")
     return num
 
