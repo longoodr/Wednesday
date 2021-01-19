@@ -123,7 +123,7 @@ if (__name__ == "__main__"):
         help="name of the image file to process")
 
     parser.add_argument("-n", "--iterations",
-        type=int,
+        type=parse_iterations,
         default=1,
         required=False,
         help="number of iterations to perform")
