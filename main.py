@@ -149,7 +149,7 @@ if (__name__ == "__main__"):
                 if rand() < 0.02:
                     img = get_scribbled(img)
                 img = get_text_written(img, args.weekday + i)
-                img = get_jpegified(img, quality=30)
+                img = get_jpegified(img)
             img.show()
             img.save("out.png")
     except Exception as ex:
