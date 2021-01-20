@@ -20,7 +20,7 @@ FONT_SIZE_WOBBLE = 0.1
 DAY_WOBBLE = 0.05
 
 PIXELS_TO_FONT = 15/11.25
-DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+DAYS_OF_WEEK = ["Monday", "Tueaday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 def get_num_scribbles():
     if not path.isdir(SCRIBBLE_DIR):
@@ -146,7 +146,8 @@ if (__name__ == "__main__"):
     try:
         with Image.open(args.image) as img:
             for i in range(args.iterations):
-                img = get_scribbled(img)
+                if rand() < 0.02:
+                    img = get_scribbled(img)
                 img = get_text_written(img, args.weekday + i)
                 img = get_jpegified(img, quality=30)
             img.show()
