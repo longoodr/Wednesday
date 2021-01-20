@@ -4,6 +4,7 @@ import random
 
 from datetime import datetime
 from io import BytesIO
+from numpy.random import normal
 from os import listdir, path, walk
 from random import random as rand
 from PIL import Image, ImageDraw, ImageFont
@@ -45,8 +46,17 @@ def read_scribble_bound_dims():
         dimline = lines[0]
         return tuple([float(dim) for dim in dimline.split()])
 
+def get_perturbed_dims(dims):
+    xs = dims[:2]
+    ys = dims[2:]
+
+    x_stdev = 0.1 * (xs[1] - xs[0])
+    y_stdev = 0.05 * (ys[1] - ys[0])
+    return tuple([x + normal(0, x_stdev) for x in xs] + [y + normal(0, y_stdev) for y in ys])
+
 def scale_scribble_to_img(scribble_data, img):
     scribble_dims = read_scribble_bound_dims()
+    scribble_dims = get_perturbed_dims(scribble_dims)
     scaled_scribble = []
     for pt in scribble_data:
         upscaled_pt = util.get_upscaled_pt(pt, *scribble_dims)
@@ -70,13 +80,10 @@ def scribble_from_filename(img, scribble_filename):
     draw_scribble_on_img(img, scaled_scribble)
 
 def draw_outlined_impact(draw, text):
-    (min_x, max_x, min_y, max_y) = read_scribble_bound_dims()
+    (min_x, max_x, min_y, max_y) = get_perturbed_dims(read_scribble_bound_dims())
     font_height_pixels = (max_y - min_y) * img.size[1] * PIXELS_TO_FONT * 0.6
     font = ImageFont.truetype(path.join("res", "impact.ttf"), int(random.uniform(1-2*FONT_SIZE_WOBBLE, 1) * font_height_pixels))
-    text_anchor = util.norm_to_pixel_space(
-            (random.uniform(-1*DAY_WOBBLE, DAY_WOBBLE) + (min_x + max_x) / 2, 
-            random.uniform(-1*DAY_WOBBLE, 0) + (min_y + max_y) / 2), 
-        img.size)
+    text_anchor = util.norm_to_pixel_space(((min_x + max_x) / 2, (min_y + max_y) / 2), img.size)
     draw.text(text_anchor, text, (230, 230, 230), font=font, anchor="mm", stroke_width=2, stroke_fill=(0, 0, 0))
 
 
@@ -93,7 +100,7 @@ def get_text_written(img, weekday_num):
     draw_outlined_impact(draw, weekday)
     return new_img
 
-def get_jpegified(img, quality=50):
+def get_jpegified(img, quality=1):
     buffer = BytesIO()
     img.save(buffer, "JPEG", quality=quality)
     buffer.seek(0)
