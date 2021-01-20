@@ -14,6 +14,8 @@ import util
 
 from scribble import DIR as SCRIBBLE_DIR, get_filename as get_scribble_filename
 
+JPEG_QUALITY = 25 # out of 100
+MAX_TEXT_LAYERS = 8
 SCRIBBLE_WIDTH = 10
 SCRIBBLE_WIDTH_WOBBLE = 0.5
 FONT_SIZE_WOBBLE = 0.1
@@ -64,10 +66,11 @@ def scale_scribble_to_img(scribble_data, img):
     return scaled_scribble
 
 def get_line_fill():
-    r = random.randrange(0, 64)
+    r = random.randrange(0, 32)
     if rand() < 0.5:
         r = 255 - r
-    return (r, r, r)
+    COLOR_RANGE = 10
+    return tuple([r + random.randrange(-1 * COLOR_RANGE, COLOR_RANGE) for _ in range(3)])
 
 def draw_scribble_on_img(img, pts):
     draw = ImageDraw.Draw(img)
@@ -100,9 +103,9 @@ def get_text_written(img, weekday_num):
     draw_outlined_impact(draw, weekday)
     return new_img
 
-def get_jpegified(img, quality=1):
+def get_jpegified(img):
     buffer = BytesIO()
-    img.save(buffer, "JPEG", quality=quality)
+    img.save(buffer, "JPEG", quality=JPEG_QUALITY)
     buffer.seek(0)
     return Image.open(buffer)
 
