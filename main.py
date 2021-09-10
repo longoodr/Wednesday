@@ -15,7 +15,7 @@ import util
 from scribble import DIR as SCRIBBLE_DIR, get_filename as get_scribble_filename
 
 JPEG_QUALITY = 25 # out of 100
-SCRIBBLE_WIDTH = 3
+SCRIBBLE_WIDTH = 2
 SCRIBBLE_WIDTH_WOBBLE = 0.5
 FONT_SIZE_WOBBLE = 0.1
 DAY_WOBBLE = 0.05
@@ -148,8 +148,7 @@ if (__name__ == "__main__"):
     try:
         with Image.open(args.image) as img:
             for i in range(args.iterations):
-                if rand() < 0.3:
-                    img = get_scribbled(img)
+                img = get_scribbled(img)
                 img = get_text_written(img, args.weekday + i)
                 img = get_jpegified(img)
             img.show()
