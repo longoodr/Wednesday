@@ -15,8 +15,7 @@ import util
 from scribble import DIR as SCRIBBLE_DIR, get_filename as get_scribble_filename
 
 JPEG_QUALITY = 25 # out of 100
-MAX_TEXT_LAYERS = 8
-SCRIBBLE_WIDTH = 10
+SCRIBBLE_WIDTH = 3
 SCRIBBLE_WIDTH_WOBBLE = 0.5
 FONT_SIZE_WOBBLE = 0.1
 DAY_WOBBLE = 0.05
@@ -74,7 +73,7 @@ def get_line_fill():
 
 def draw_scribble_on_img(img, pts):
     draw = ImageDraw.Draw(img)
-    width = int(SCRIBBLE_WIDTH * random.uniform(1-SCRIBBLE_WIDTH_WOBBLE, 1+SCRIBBLE_WIDTH_WOBBLE))
+    width = int(round(SCRIBBLE_WIDTH * random.uniform(1-SCRIBBLE_WIDTH_WOBBLE, 1+SCRIBBLE_WIDTH_WOBBLE)))
     draw.line(pts, fill=get_line_fill(), width=width, joint="curve")
 
 def scribble_from_filename(img, scribble_filename):
@@ -100,7 +99,7 @@ def get_text_written(img, weekday_num):
     weekday = DAYS_OF_WEEK[weekday_num % len(DAYS_OF_WEEK)]
     new_img = img.copy()
     draw = ImageDraw.Draw(new_img)
-    draw_outlined_impact(draw, weekday)
+    draw_outlined_impact(draw, weekday.upper())
     return new_img
 
 def get_jpegified(img):
@@ -149,7 +148,7 @@ if (__name__ == "__main__"):
     try:
         with Image.open(args.image) as img:
             for i in range(args.iterations):
-                if rand() < 0.02:
+                if rand() < 0.3:
                     img = get_scribbled(img)
                 img = get_text_written(img, args.weekday + i)
                 img = get_jpegified(img)
